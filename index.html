@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Memo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #1a1a2e;
+        --text: #e0e0e0;
+        --muted: rgba(224, 224, 224, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg);
+      }
+
+      body {
+        overflow: hidden;
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      }
+
+      .app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .editor {
+        width: 100%;
+        height: 100%;
+        padding: 24px;
+        border: 0;
+        outline: none;
+        resize: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.6;
+        caret-color: var(--text);
+        white-space: pre-wrap;
+        tab-size: 2;
+      }
+
+      .editor::placeholder {
+        color: rgba(224, 224, 224, 0.22);
+      }
+
+      .count {
+        position: absolute;
+        right: 24px;
+        bottom: 20px;
+        pointer-events: none;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        user-select: none;
+      }
+
+      @media (max-width: 640px) {
+        .editor {
+          padding: 18px;
+        }
+
+        .count {
+          right: 18px;
+          bottom: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <textarea
+        id="editor"
+        class="editor"
+        spellcheck="false"
+        placeholder="すぐ書けるメモ"
+        aria-label="メモ"
+      ></textarea>
+      <div id="count" class="count">0 chars</div>
+    </main>
+
+    <script>
+      const STORAGE_KEY = "simple-memo/content";
+      const SAVE_DELAY_MS = 300;
+
+      const editor = document.getElementById("editor");
+      const count = document.getElementById("count");
+
+      let saveTimer = null;
+
+      function updateCount(text) {
+        const length = text.length;
+        count.textContent = `${length} char${length === 1 ? "" : "s"}`;
+      }
+
+      function saveContent() {
+        localStorage.setItem(STORAGE_KEY, editor.value);
+      }
+
+      function scheduleSave() {
+        window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(saveContent, SAVE_DELAY_MS);
+      }
+
+      function restoreContent() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved !== null) {
+          editor.value = saved;
+        }
+        updateCount(editor.value);
+      }
+
+      editor.addEventListener("input", () => {
+        updateCount(editor.value);
+        scheduleSave();
+      });
+
+      window.addEventListener("pagehide", () => {
+        if (saveTimer !== null) {
+          window.clearTimeout(saveTimer);
+          saveTimer = null;
+        }
+        saveContent();
+      });
+
+      restoreContent();
+      editor.focus();
+    </script>
+  </body>
+</html>
