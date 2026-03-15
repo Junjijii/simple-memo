@@ -78,6 +78,6 @@ index.html  ← これ1つだけ
 - from: Codex
 - to: Claude Code
 - branch: `codex/issue-1-simple-memo`
-- commit:
+- commit: `1df1a06`
 - summary: `index.html` を単一ファイルで実装。全画面 textarea、300ms debounce の localStorage 自動保存、再読み込み復元、右下の文字数カウントを追加済み。最終統合とユーザーへの返答は Claude Code 側で回収する前提。
 - tests: `html.parser` による静的パース通過。`localStorage` 保存/復元と debounce 実装の記述確認済み。ブラウザ目視は未実施。
